@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Water Harvesting Dashboard</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"
+      defer
+    ></script>
+    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="header">
+        <h1>🌱 Water Harvesting System</h1>
+        <div class="status-time">
+          Last Update: <span id="lastUpdate">--:--:--</span>
+        </div>
+      </div>
+
+      <div id="alertBanner" class="alert-banner">
+        <span id="alertMessage"></span>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="icon">💧</span> Soil Moisture
+          </div>
+          <div class="metric-value">
+            <span id="soilMoisture">--</span><span class="metric-unit">%</span>
+          </div>
+          <div class="metric-progress">
+            <div
+              id="soilProgress"
+              class="metric-progress-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="icon">🏺</span> Water Tank Level
+          </div>
+          <div class="metric-value">
+            <span id="waterLevel">--</span><span class="metric-unit">%</span>
+          </div>
+          <div class="metric-progress">
+            <div
+              id="waterProgress"
+              class="metric-progress-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="icon">☀️</span> Solar Voltage
+          </div>
+          <div class="metric-value">
+            <span id="solarVoltage">--</span><span class="metric-unit">V</span>
+          </div>
+          <div class="metric-progress">
+            <div
+              id="solarProgress"
+              class="metric-progress-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">
+            <span class="icon">⚡</span> System Efficiency
+          </div>
+          <div class="metric-value">
+            <span id="efficiency">--</span><span class="metric-unit">%</span>
+          </div>
+          <div class="metric-progress">
+            <div
+              id="efficiencyProgress"
+              class="metric-progress-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pump-section">
+        <h2 style="color: #11385a; margin-bottom: 20px">Water Pump Status</h2>
+        <div id="pumpStatus" class="pump-status">
+          <div class="pump-icon">
+            <svg viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              />
+              <path d="M50 20 L65 40 L50 45 L35 40 Z" fill="currentColor" />
+              <rect x="45" y="45" width="10" height="25" fill="currentColor" />
+              <g class="water-flow">
+                <circle
+                  cx="50"
+                  cy="75"
+                  r="3"
+                  fill="currentColor"
+                  opacity="0.6"
+                />
+                <circle
+                  cx="45"
+                  cy="80"
+                  r="2"
+                  fill="currentColor"
+                  opacity="0.4"
+                />
+                <circle
+                  cx="55"
+                  cy="80"
+                  r="2"
+                  fill="currentColor"
+                  opacity="0.4"
+                />
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size: 1.5em; font-weight: bold">
+              PUMP <span id="pumpStatusText">OFF</span>
+            </div>
+            <div style="font-size: 0.9em; opacity: 0.8">
+              Runtime: <span id="pumpRuntime">0</span> min
+            </div>
+          </div>
+        </div>
+        <div class="stats-summary">
+          <div class="stat-item">
+            <div class="stat-label">Daily Usage</div>
+            <div class="stat-value" id="dailyUsage">0 L</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Water Saved</div>
+            <div class="stat-value" id="waterSaved">0 L</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Energy Consumed</div>
+            <div class="stat-value" id="energyConsumed">0 kWh</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Next Irrigation</div>
+            <div class="stat-value" id="nextIrrigation">--:--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-section">
+        <div class="chart-card">
+          <h3 class="chart-title">📊 24-Hour Moisture & Water Trends</h3>
+          <canvas id="trendsChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">⚡ Solar Power Generation</h3>
+          <canvas id="solarChart"></canvas>
+        </div>
+      </div>
+
+      <div class="controls-section">
+        <h3 style="color: #11385a; margin-bottom: 20px; text-align: center">
+          System Controls
+        </h3>
+        <div class="control-buttons">
+          <button class="control-btn" onclick="refreshData()">
+            🔄 Refresh Data
+          </button>
+          <button class="control-btn secondary" onclick="toggleAutoMode()">
+            🤖 Auto Mode: <span id="autoModeStatus">ON</span>
+          </button>
+          <button class="control-btn" onclick="manualPumpToggle()">
+            💧 Manual Pump Control
+          </button>
+          <button class="control-btn secondary" onclick="downloadReport()">
+            📥 Download Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
