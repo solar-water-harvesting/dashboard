@@ -13,13 +13,6 @@
   </head>
   <body>
     <div class="dashboard">
-      <div class="header">
-        <h1>🌱 Water Harvesting System</h1>
-        <div class="status-time">
-          Last Update: <span id="lastUpdate">--:--:--</span>
-        </div>
-      </div>
-
       <div id="alertBanner" class="alert-banner">
         <span id="alertMessage"></span>
       </div>
@@ -91,7 +84,6 @@
       </div>
 
       <div class="pump-section">
-        <h2 style="color: #11385a; margin-bottom: 20px">Water Pump Status</h2>
         <div id="pumpStatus" class="pump-status">
           <div class="pump-icon">
             <svg viewBox="0 0 100 100">
@@ -167,6 +159,13 @@
         <div class="chart-card">
           <h3 class="chart-title">⚡ Solar Power Generation</h3>
           <canvas id="solarChart"></canvas>
+        </div>
+      </div>
+
+      <div class="footer">
+        <h1>🌱 Water Harvesting System</h1>
+        <div class="status-time">
+          Last Update: <span id="lastUpdate">--:--:--</span>
         </div>
       </div>
     </div>
