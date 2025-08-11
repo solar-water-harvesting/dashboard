@@ -1,12 +1,28 @@
-// Simulated data (replace with actual Firebase connection)
-let currentData = {
-  soilMoisture: 45,
-  waterLevel: 75,
-  solarVoltage: 2.8,
-  pumpStatus: 0,
-  timestamp: Date.now(),
+// Import Firebase SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  onValue,
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCmvVA9K1kkzhMq8bMuJXVnNHI_c92_DW8",
+  authDomain: "water-harvesting-b4520.firebaseapp.com",
+  databaseURL: "https://water-harvesting-b4520-default-rtdb.firebaseio.com",
+  projectId: "water-harvesting-b4520",
+  storageBucket: "water-harvesting-b4520.firebasestorage.app",
+  messagingSenderId: "957433848225",
+  appId: "1:957433848225:web:eeb6574d2963f5df8debe0",
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const dataRef = ref(database, "sensorData");
+
+// Historical data storage
 let historicalData = {
   timestamps: [],
   soilMoisture: [],
@@ -116,15 +132,15 @@ function updateDashboard(data) {
   if (data.pumpStatus === 1) {
     pumpElement.classList.add("active");
     pumpText.textContent = "ON";
-    pumpRuntime++;
+    pumpRuntime += 5 / 60; // Increment by 5 seconds (converted to minutes) per update
   } else {
     pumpElement.classList.remove("active");
     pumpText.textContent = "OFF";
   }
-  document.getElementById("pumpRuntime").textContent = pumpRuntime;
+  document.getElementById("pumpRuntime").textContent = pumpRuntime.toFixed(1);
 
   // Update last update time
-  const now = new Date();
+  const now = new Date(data.timestamp * 1000); // Convert Firebase timestamp (seconds) to milliseconds
   document.getElementById("lastUpdate").textContent = now.toLocaleTimeString();
 
   // Check for alerts
@@ -166,7 +182,7 @@ function checkAlerts(data) {
 }
 
 function updateStatistics(data) {
-  // Simulated statistics - replace with actual calculations
+  // Simulated statistics based on pump runtime
   document.getElementById("dailyUsage").textContent =
     Math.round(pumpRuntime * 2.5) + " L";
   document.getElementById("waterSaved").textContent =
@@ -186,7 +202,7 @@ function updateStatistics(data) {
 
 function updateCharts(data) {
   // Add data to history
-  const time = new Date().toLocaleTimeString();
+  const time = new Date(data.timestamp * 1000).toLocaleTimeString(); // Use Firebase timestamp
   historicalData.timestamps.push(time);
   historicalData.soilMoisture.push(data.soilMoisture);
   historicalData.waterLevel.push(data.waterLevel);
@@ -212,67 +228,20 @@ function updateCharts(data) {
   solarChart.update();
 }
 
-function refreshData() {
-  // Simulate data refresh (replace with actual Firebase fetch)
-  currentData = {
-    soilMoisture: Math.floor(Math.random() * 100),
-    waterLevel: Math.floor(Math.random() * 100),
-    solarVoltage: Math.random() * 3.3,
-    pumpStatus: Math.random() > 0.5 ? 1 : 0,
-    timestamp: Date.now(),
-  };
-  updateDashboard(currentData);
-}
-
-function toggleAutoMode() {
-  autoMode = !autoMode;
-  document.getElementById("autoModeStatus").textContent = autoMode
-    ? "ON"
-    : "OFF";
-  alert(`Auto mode ${autoMode ? "enabled" : "disabled"}`);
-}
-
-function manualPumpToggle() {
-  if (!autoMode) {
-    currentData.pumpStatus = currentData.pumpStatus === 1 ? 0 : 1;
-    updateDashboard(currentData);
-  } else {
-    alert("Please disable auto mode first to control pump manually");
-  }
-}
-
-function downloadReport() {
-  alert("Report download feature coming soon!");
-}
-
 // Initialize on load
 window.onload = function () {
   initCharts();
-  updateDashboard(currentData);
 
-  // Auto-refresh every 5 seconds (matching your ESP32 delay)
-  setInterval(refreshData, 5000);
+  // Listen for real-time updates from Firebase
+  onValue(dataRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      updateDashboard(data);
+    } else {
+      console.error("No data received from Firebase");
+      document.getElementById("alertBanner").classList.add("show");
+      document.getElementById("alertMessage").textContent =
+        "⚠️ Failed to fetch data from Firebase";
+    }
+  });
 };
-
-// TODO: Add Firebase integration
-// Import Firebase SDK and replace simulated data with:
-/*
-        import { initializeApp } from 'firebase/app';
-        import { getDatabase, ref, onValue } from 'firebase/database';
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyCmvVA9K1kkzhMq8bMuJXVnNHI_c92_DW8",
-            databaseURL: "https://water-harvesting-b4520-default-rtdb.firebaseio.com/"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        
-        const dataRef = ref(database, 'sensorData');
-        onValue(dataRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                updateDashboard(data);
-            }
-        });
-        */
