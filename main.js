@@ -29,6 +29,8 @@ let historicalData = {
   waterLevel: [],
   solarVoltage: [],
   pumpStatus: [],
+  temperature: [],
+  humidity: [],
 };
 
 let pumpRuntime = 0;
@@ -55,6 +57,20 @@ function initCharts() {
           data: [],
           borderColor: "#11385a",
           backgroundColor: "rgba(17, 56, 90, 0.1)",
+          tension: 0.4,
+        },
+        {
+          label: "Temperature (°C)",
+          data: [],
+          borderColor: "#ff6384",
+          backgroundColor: "rgba(255, 99, 132, 0.1)",
+          tension: 0.4,
+        },
+        {
+          label: "Humidity (%)",
+          data: [],
+          borderColor: "#36a2eb",
+          backgroundColor: "rgba(54, 162, 235, 0.1)",
           tension: 0.4,
         },
       ],
@@ -114,12 +130,17 @@ function updateDashboard(data) {
   document.getElementById("waterLevel").textContent = data.waterLevel;
   document.getElementById("solarVoltage").textContent =
     data.solarVoltage.toFixed(2);
+  document.getElementById("temperature").textContent = data.temperature;
+  document.getElementById("humidity").textContent = data.humidity;
 
   // Update progress bars
   document.getElementById("soilProgress").style.width = data.soilMoisture + "%";
   document.getElementById("waterProgress").style.width = data.waterLevel + "%";
   document.getElementById("solarProgress").style.width =
     (data.solarVoltage / 3.3) * 100 + "%";
+  document.getElementById("temperatureProgress").style.width =
+    (data.temperature / 50) * 100 + "%"; // Assume a max temp of 50°C
+  document.getElementById("humidityProgress").style.width = data.humidity + "%";
 
   // Calculate and update efficiency
   const efficiency = calculateEfficiency(data);
@@ -207,6 +228,8 @@ function updateCharts(data) {
   historicalData.soilMoisture.push(data.soilMoisture);
   historicalData.waterLevel.push(data.waterLevel);
   historicalData.solarVoltage.push(data.solarVoltage);
+  historicalData.temperature.push(data.temperature);
+  historicalData.humidity.push(data.humidity);
 
   // Keep only last 24 data points
   if (historicalData.timestamps.length > 24) {
@@ -214,12 +237,16 @@ function updateCharts(data) {
     historicalData.soilMoisture.shift();
     historicalData.waterLevel.shift();
     historicalData.solarVoltage.shift();
+    historicalData.temperature.shift();
+    historicalData.humidity.shift();
   }
 
   // Update trends chart
   trendsChart.data.labels = historicalData.timestamps;
   trendsChart.data.datasets[0].data = historicalData.soilMoisture;
   trendsChart.data.datasets[1].data = historicalData.waterLevel;
+  trendsChart.data.datasets[2].data = historicalData.temperature;
+  trendsChart.data.datasets[3].data = historicalData.humidity;
   trendsChart.update();
 
   // Update solar chart
