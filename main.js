@@ -160,10 +160,6 @@ function updateDashboard(data) {
   }
   document.getElementById("pumpRuntime").textContent = pumpRuntime.toFixed(1);
 
-  // Update last update time
-  const now = new Date(data.timestamp * 1000); // Convert Firebase timestamp (seconds) to milliseconds
-  document.getElementById("lastUpdate").textContent = now.toLocaleTimeString();
-
   // Check for alerts
   checkAlerts(data);
 
